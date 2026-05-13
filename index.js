@@ -9,6 +9,9 @@ const client = new Client({
   ]
 });
 
+// Duplicate message blocker
+const processedMessages = new Set();
+
 client.once("ready", () => {
   console.log(`Logged in as ${client.user.tag}`);
 });
@@ -18,16 +21,25 @@ client.on("messageCreate", async (message) => {
   // Ignore bots
   if (message.author.bot) return;
 
+  // Ignore duplicate events
+  if (processedMessages.has(message.id)) return;
+  processedMessages.add(message.id);
+
+  // Auto remove after 5 sec
+  setTimeout(() => {
+    processedMessages.delete(message.id);
+  }, 5000);
+
   // Reply only if bot mentioned
   if (!message.mentions.has(client.user)) return;
 
-  // Remove mention from message
+  // Remove mention
   const userMessage = message.content
     .replace(/<@!?(\d+)>/, "")
     .trim();
 
   if (!userMessage) {
-    return message.reply("Kuch toh bol 😭");
+    return message.reply("Kuch toh bol bhai 😭");
   }
 
   try {
@@ -46,13 +58,14 @@ client.on("messageCreate", async (message) => {
             {
               role: "system",
               content:
-                "You are a chill Discord bot named X.Parallel World. Reply only in natural Hinglish. Never use Chinese or other languages. Keep replies short, human-like, funny, emotional, and Gen-Z."
+                "You are X.Parallel World, a funny chill Discord bot. Reply ONLY in Hinglish. Never use English-only or Chinese. Keep replies short, human, funny, Gen-Z, emotional."
             },
             {
               role: "user",
               content: userMessage
             }
-          ]
+          ],
+          max_tokens: 80
         })
       }
     );
@@ -61,15 +74,15 @@ client.on("messageCreate", async (message) => {
 
     const botReply =
       data.choices?.[0]?.message?.content ||
-      "Dimag hang ho gaya 😭";
+      "Dimag short circuit ho gaya 😭";
 
-    message.reply(botReply);
+    await message.reply(botReply);
 
   } catch (err) {
     console.log(err);
-    message.reply("Server so gaya 😭");
+    message.reply("Server so gaya bhai 😭");
   }
 
 });
 
-client.login(process.env.DISCORD_BOT_TOKEN);
+client.login(process.env.MTUwNDE5NDU3NDgzNzYxMjYxNA.GXKVi4.D4CNECwCPWJ2pjxAsJRNeBf7mvq9KcK3HZnXg4);
